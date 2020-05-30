@@ -81,3 +81,48 @@ Inside the loop you state that you use the `screen_capture` instance to `grab` t
 Finally you use OpenCV's `cv2.imshow(image)` method to show the image in a window on the screen. So you can see what you capture. Right now, you capture a really large area, but you can reposition it and resize it to only capture a point just in front of the dinosaur, where it should see cacti and low-flying birds.
 
 Now run the program and have a look at the captured image. If you click the window that shows the capture and press <kbd>Esc</kbd>, the loop exists and the program continues to its end and terminates. Note that closing the preview window doesn't work. The while loop will just re-open it.
+
+## Starting the game
+
+Next you want to enable the basic functionality to start the game. To do this we use the `keyboard` from `pynput` as a virtual keyboard. To add a virtual keyboard instance to your `AutoDino` instances add this to the `__init__` method:
+
+```python3
+        # Initialise a keyboard
+        self.keyboard = Controller()
+```
+
+First of all you want to start the game automatically. An easy way to do this is to hit <kbd>F5</kbd> to reload the page. Since you don't load the dino-game from the internet, but from your own computer, this is really fast. You let the program wait for a very short amount of time. Then you hit <kbd>Space</kbd> to start the game:
+
+```python3
+    def start(self):
+        print('Click the dino-game window!')
+        sleep(1)
+        print('3')
+        sleep(1)
+        print('2')
+        sleep(1)
+        print('1')
+        sleep(1)
+        print('START!')
+        # F5 to reload page
+        self.keyboard.press(Key.f5)
+        self.keyboard.release(Key.f5)
+        # Wait briefly for page reload
+        sleep(0.1)
+        # Press space to start the game
+        self.keyboard.press(Key.space)
+        self.keyboard.release(Key.space)
+```
+
+In this case you get four seconds of time to activate the game window once the program starts. Otherwise the key presses are sent to the wrong window.
+
+Now change the bottom of the program. Use the example below, but keep in mind that you should probably use your own `image_box` settings instead of these.
+
+```python3
+if __name__ == '__main__':
+    dino = AutoDino({ 'top': 630, 'left':350, 'width': 100, 'height': 5 })
+    dino.start()
+    dino.view()
+```
+
+Run the game. You should see the instruction to click the game window, the count-down, and – if you clicked the game window in time – it should refresh the page and start the game, and you can see in the capture window what is being captured.

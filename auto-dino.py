@@ -27,6 +27,8 @@ class AutoDino:
     def __init__(self, image_box):
         # Definition of the part of the screen where we capture the image.
         self.image_box = image_box
+        # Initialise a keyboard
+        self.keyboard = Controller()
 
     def view(self):
         with mss() as screen_capture:
@@ -36,5 +38,26 @@ class AutoDino:
                 # Show the captured area.
                 cv2.imshow('Captured area', image)
 
+    def start(self):
+        print('Click the dino-game window!')
+        sleep(1)
+        print('3')
+        sleep(1)
+        print('2')
+        sleep(1)
+        print('1')
+        sleep(1)
+        print('START!')
+        # F5 to reload page
+        self.keyboard.press(Key.f5)
+        self.keyboard.release(Key.f5)
+        # Wait briefly for page reload
+        sleep(0.1)
+        # Press space to start the game
+        self.keyboard.press(Key.space)
+        self.keyboard.release(Key.space)
+
 if __name__ == '__main__':
-    AutoDino({ 'top': 0, 'left': 0, 'width': 1000, 'height': 500 }).view()
+    dino = AutoDino({ 'top': 630, 'left':350, 'width': 100, 'height': 5 })
+    dino.start()
+    dino.view()
