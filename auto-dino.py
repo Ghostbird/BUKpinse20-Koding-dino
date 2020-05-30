@@ -22,3 +22,19 @@ elif platform == 'win32':
     from mss.windows import MSS as mss
 else:
     print(f'Unsupported platform {platform}')
+
+class AutoDino:
+    def __init__(self, image_box):
+        # Definition of the part of the screen where we capture the image.
+        self.image_box = image_box
+
+    def view(self):
+        with mss() as screen_capture:
+            while cv2.waitKey(10) != 27:
+                # Grab the pixels in the box (in full colour)
+                image = np.array(screen_capture.grab(self.image_box))
+                # Show the captured area.
+                cv2.imshow('Captured area', image)
+
+if __name__ == '__main__':
+    AutoDino({ 'top': 0, 'left': 0, 'width': 1000, 'height': 500 }).view()
