@@ -35,23 +35,26 @@ class AutoDino:
             while cv2.waitKey(10) != 27:
                 # Grab the pixels in the box (in full colour)
                 image = np.array(screen_capture.grab(self.image_box))
-                # Show the captured area.
-                cv2.imshow('Captured area', image)
+                # Discard unneeded colour information, makes calculations faster
+                image_grey = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+                # Calculate edges
+                image_laplacian = cv2.Laplacian(image_grey, cv2.CV_64F)
+                # Show the captured area laplacian.
+                cv2.imshow('Captured area', image_laplacian)
 
     def run(self):
         self.start()
         # Wait one second for the zoom effect to end
         sleep(1)
-        no_obstacle_value = self.image_box["height"] * self.image_box["width"] * 255
         with mss() as screen_capture:
             while True:
                 # Grab the pixels in the box (in full colour)
                 image = np.array(screen_capture.grab(self.image_box))
                 # Discard unneeded colour information, makes calculations faster
                 image_grey = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
-                # Calculate the total value of the pixels in the box.
-                value = image_grey.sum()
-                if value < no_obstacle_value:
+                # Calculate difference in image
+                value = self.difference(image_grey)
+                if value > 0:
                     self.jump()
 
     def jump(self):
@@ -79,6 +82,14 @@ class AutoDino:
         # Press space to start the game
         self.keyboard.press(Key.space)
         self.keyboard.release(Key.space)
+    
+    def difference(self, image_grey):
+        # Calculate Laplacian
+        image_laplacian = cv2.Laplacian(image_grey, cv2.CV_64F)
+        # Get the nonzero values of the laplacian.
+        non_zero = image_laplacian.nonzero()
+        # Count the nonzero values of the laplacian in both dimensions
+        return len(non_zero[0]) + len(non_zero[1])
 
 if __name__ == '__main__':
-    AutoDino({ 'top': 635, 'left':350, 'width': 100, 'height': 5 }).run()
+    AutoDino({ 'top': 635, 'left':360, 'width': 100, 'height': 5 }).run()

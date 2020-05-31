@@ -213,3 +213,76 @@ The simplest option is to make the dinosaur _always_ duck, when he's not jumping
 Run the game and you will see the dinosaur jump and duck. At this point you might have to change the image box values a bit. Otherwise it might try to jump over birds that it can pass more easily by just running under them.
 
 Note that when you stop the game, your computer might think that you're still pressing the down button, since the game never stopped doing that. To fix this, just press and release the down button on the keyboard once.
+
+## Slightly more advanced image processing
+
+Now at this point you might notice that around 700 points, the dino game becomes white on black instead of black on white. This completely throws off your basic image processing. How can you actually still easily recognise everything, even though the colours are inverted? Because the lines are clear against the background, as long as the two colours are different enough.
+
+You can use the Laplacian operator in image processing to get a measure of the difference in an image. This involves some calculus, but luckily OpenCV has a ready made `cv2.Laplacian` method already built-in.
+
+To see how this works, change you `view()` method to:
+
+```python3
+    def view(self):
+        with mss() as screen_capture:
+            while cv2.waitKey(10) != 27:
+                # Grab the pixels in the box (in full colour)
+                image = np.array(screen_capture.grab(self.image_box))
+                # Discard unneeded colour information, makes calculations faster
+                image_grey = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+                # Calculate edges
+                image_laplacian = cv2.Laplacian(image_grey, cv2.CV_64F)
+                # Show the captured area laplacian.
+                cv2.imshow('Captured area', image_laplacian)
+```
+
+Now change the last line of the program to `view()` instead of `run()`, then start the program. You will see a mostly black capture window with some while lines when an obstacle passes.
+
+### Calculate the difference
+
+You can add this method to calculate the amount of difference (or contrast) in the image:
+
+```python3
+    def difference(self, image_grey):
+        # Calculate edges
+        image_laplacian = cv2.Laplacian(image_grey, cv2.CV_64F)
+        # Get the of nonzero values of the laplacian.
+        non_zero = image_laplacian.nonzero()
+        # Count the nonzero values of the laplacian
+        return len(non_zero[0]) + len(non_zero[1])
+```
+
+When you give this function the grey-scale image as input, it will:
+
+1. Calculate the Laplacian.
+2. Give all non-zero values of the Laplacian
+3. Count the number of non-zero values in both dimensions of the 2D image and give you the total
+
+### Make it work
+
+Change your run function to match this, note that only the last part starting from `value = ` actually has changed.
+
+```python3
+    def run(self):
+        self.start()
+        # Wait one second for the zoom effect to end
+        sleep(1)
+        with mss() as screen_capture:
+            while True:
+                # Grab the pixels in the box (in full colour)
+                image = np.array(screen_capture.grab(self.image_box))
+                # Discard unneeded colour information, makes calculations faster
+                image_grey = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+                # Calculate difference in image
+                value = self.difference(image_grey)
+                if value > 0:
+                    self.jump()
+```
+
+Basically when we capture the grey-scale image, we ask the `difference` method to give us the total amount of contrast, and if it is not zero, there must be some obstacle on the screen in addition to the solid colour background. The actual colours of the obstacles and the background no longer matter.
+
+Don't forget to change the final line of the code again to `run()` the game. Give it a try!
+
+## Challenge
+
+Tweak your capture are, the `sleep` time in `jump` etc. to get the best result possible. Post a video of your bot running a high score, in the Discord channel. The to scorer will get a small price. Please be fair and don't cheat.
