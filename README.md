@@ -173,3 +173,43 @@ if __name__ == '__main__':
 ```
 
 Run the program, and if everything went well, you'll see the dinosaur run into the first cactus, and the program will show the text _Obstacle_ a lot, starting the moment the cactus enters the capture area. Note that it doesn't show it only once, but it keeps spamming it in the loop, as long as there's an obstacle in view.
+
+## Control your dinosaur
+
+Now your program can detect obstacles, but the dinosaur still runs into the first cactus. Therefore you must make the dino jump. Luckily this one is fairly easy.
+
+A jump is defined as pressing down the spacebar, waiting a short amount of time, and releasing it:
+
+```python3
+    def jump(self):
+        self.keyboard.press(Key.space)
+        sleep(0.3)
+        self.keyboard.release(Key.space)
+```
+
+Then, replace the line `print('Obstacle')` in `run()` with:
+
+```python3
+        self.jump()
+```
+
+Now run the game, and you should see that your dinosaur jumps over the detected obstacles.
+
+### It's a bird, duck
+
+Your dinosaur won't make it that far, until he runs into a low-flying bird. Depending on the detection area, he might jump over it. However that's not a good option if you want the game to work really well.
+
+The simplest option is to make the dinosaur _always_ duck, when he's not jumping. Change the jump method to:
+
+```python3
+    def jump(self):
+        self.keyboard.release(Key.down)
+        self.keyboard.press(Key.space)
+        sleep(0.3)
+        self.keyboard.release(Key.space)
+        self.keyboard.press(Key.down)
+```
+
+Run the game and you will see the dinosaur jump and duck. At this point you might have to change the image box values a bit. Otherwise it might try to jump over birds that it can pass more easily by just running under them.
+
+Note that when you stop the game, your computer might think that you're still pressing the down button, since the game never stopped doing that. To fix this, just press and release the down button on the keyboard once.

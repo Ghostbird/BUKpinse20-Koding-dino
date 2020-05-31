@@ -52,7 +52,14 @@ class AutoDino:
                 # Calculate the total value of the pixels in the box.
                 value = image_grey.sum()
                 if value < no_obstacle_value:
-                    print('Obstacle!')
+                    self.jump()
+
+    def jump(self):
+        self.keyboard.release(Key.down)
+        self.keyboard.press(Key.space)
+        sleep(0.3)
+        self.keyboard.release(Key.space)
+        self.keyboard.press(Key.down)
 
     def start(self):
         print('Click the dino-game window!')
@@ -74,4 +81,4 @@ class AutoDino:
         self.keyboard.release(Key.space)
 
 if __name__ == '__main__':
-    AutoDino({ 'top': 630, 'left':350, 'width': 100, 'height': 5 }).run()
+    AutoDino({ 'top': 635, 'left':350, 'width': 100, 'height': 5 }).run()
