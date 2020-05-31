@@ -6,8 +6,8 @@ In this tutorial you're going to learn basic image processing using Python and O
 
 - Install the [most recent Python](https://www.python.org/downloads/release)
 - Install these packages: `pynput` `cv2` `numpy` and `mss`
-  - Windows: `python -m pip install pynput cv2 numpy mss`
-  - MacOS: `pip install pynput cv2 numpy mss`
+  - Windows: `python -m pip install pynput opencv-python numpy mss`
+  - MacOS: `pip install pynput opencv-python numpy mss`
   - Linux: I expect you to be able to find out how to install these packages on your distro. If you really don't know, start with `sudo pip3 install pynput cv2 numpy mss` which is likely to work, and unlikely to mess up anything if it fails.
 - Run the dino game either in:
   - [Google Chrome](https://chrome.google.com)
