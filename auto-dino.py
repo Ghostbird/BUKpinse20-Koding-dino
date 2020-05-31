@@ -38,6 +38,22 @@ class AutoDino:
                 # Show the captured area.
                 cv2.imshow('Captured area', image)
 
+    def run(self):
+        self.start()
+        # Wait one second for the zoom effect to end
+        sleep(1)
+        no_obstacle_value = self.image_box["height"] * self.image_box["width"] * 255
+        with mss() as screen_capture:
+            while True:
+                # Grab the pixels in the box (in full colour)
+                image = np.array(screen_capture.grab(self.image_box))
+                # Discard unneeded colour information, makes calculations faster
+                image_grey = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+                # Calculate the total value of the pixels in the box.
+                value = image_grey.sum()
+                if value < no_obstacle_value:
+                    print('Obstacle!')
+
     def start(self):
         print('Click the dino-game window!')
         sleep(1)
@@ -58,6 +74,4 @@ class AutoDino:
         self.keyboard.release(Key.space)
 
 if __name__ == '__main__':
-    dino = AutoDino({ 'top': 630, 'left':350, 'width': 100, 'height': 5 })
-    dino.start()
-    dino.view()
+    AutoDino({ 'top': 630, 'left':350, 'width': 100, 'height': 5 }).run()

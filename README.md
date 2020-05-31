@@ -84,7 +84,7 @@ Now run the program and have a look at the captured image. If you click the wind
 
 ## Starting the game
 
-Next you want to enable the basic functionality to start the game. To do this we use the `keyboard` from `pynput` as a virtual keyboard. To add a virtual keyboard instance to your `AutoDino` instances add this to the `__init__` method:
+Next you want to enable the basic functionality to start the game. To do this you use the `keyboard` from `pynput` as a virtual keyboard. To add a virtual keyboard instance to your `AutoDino` instances add this to the `__init__` method:
 
 ```python3
         # Initialise a keyboard
@@ -126,3 +126,50 @@ if __name__ == '__main__':
 ```
 
 Run the game. You should see the instruction to click the game window, the count-down, and – if you clicked the game window in time – it should refresh the page and start the game, and you can see in the capture window what is being captured.
+
+## Detecting obstacles
+
+Currently the dinosaur just runs happily into the first cactus encountered and then looks very surprised. You'd want to know when an obstacle is incoming.
+
+### Basic image processing
+
+How do you know that something is incoming. For now we'll use a simple method. A white pixel has a value of 255. The grey pixels used by the game have a lesser value. You know the image box. So if you take the image height × image width × 255 that is the value of an image with no obstacles. Any lesser value can be considered an obstacle.
+
+Now add this method to your `AutoDino` class:
+
+```python3
+    def run(self):
+        self.start()
+        # Wait one second for the zoom effect to end
+        sleep(1)
+        no_obstacle_value = self.image_box["height"] * self.image_box["width"] * 255
+        with mss() as screen_capture:
+            while True:
+                # Grab the pixels in the box (in full colour)
+                image = np.array(screen_capture.grab(self.image_box))
+                # Discard unneeded colour information, makes calculations faster
+                image_grey = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+                # Calculate the total value of the pixels in the box.
+                value = image_grey.sum()
+                if value < no_obstacle_value:
+                    print('Obstacle!')
+```
+
+Once you `run()` the `AutoDino` instance, you first want to start the dino game. If you use Chrome/Chromium, the game zooms to fit the browser window after the start. Therefore you wait a second without doing anything.
+
+Then you calculate the value of a pure white capture area as described above.
+
+Next you initialise the screen capture and inside that you run a loop. Contrary to earlier, this loop will not show a capture window, and therefore cannot be ended by a keypress. For now, just make it infinite.
+
+In the loop, you grab the image just as before. But now you use the OpenCV colour transformation to discard all colour information, and make the image black-and-white. You don't need colours here, and in this case it would make the calculations unnecessary complex. Finally, because the `image_grey` is a numpy array you can call `sum()` on it to get the total of all values in the image.
+
+Now if the calculation gives a `value` that is less than the `no_obstacle_value`, there is probably an obstacle, so you print that.
+
+Change the bottom of the program to match the example below. Keep in mind to use your own image box values:
+
+```python3
+if __name__ == '__main__':
+    AutoDino({ 'top': 630, 'left':350, 'width': 100, 'height': 5 }).run()
+```
+
+Run the program, and if everything went well, you'll see the dinosaur run into the first cactus, and the program will show the text _Obstacle_ a lot, starting the moment the cactus enters the capture area. Note that it doesn't show it only once, but it keeps spamming it in the loop, as long as there's an obstacle in view.
